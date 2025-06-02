@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="search-section">
+    <h2>Поиск концертов</h2>
+    <form method="POST" action="/">
+        <div class="form-group">
+            <label for="artist_id">Артист:</label>
+            <select name="artist_id" id="artist_id">
+                <option value="all">Все артисты</option>
+                {% for artist in artists %}
+                    <option value="{{ artist.id }}">{{ artist.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="city">Город:</label>
+            <select name="city" id="city">
+                <option value="all">Все города</option>
+                {% for city in cities %}
+                    <option value="{{ city }}">{{ city }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="date">Дата:</label>
+            <input type="date" name="date" id="date">
+        </div>
+        
+        <button type="submit" class="btn">Найти концерты</button>
+    </form>
+</section>
+
+{% if concerts %}
+<section class="results-section">
+    <h3>Найдено концертов: {{ concerts|length }}</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Дата и время</th>
+                <th>Артист</th>
+                <th>Тур</th>
+                <th>Площадка</th>
+                <th>Город</th>
+                <th>Цена билета</th>
+                <th>Осталось билетов</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for concert in concerts %}
+            <tr>
+                <td>{{ concert.date.strftime('%d.%m.%Y %H:%M') }}</td>
+                <td>{{ concert.artist_name }}</td>
+                <td>{{ concert.tour_name }}</td>
+                <td>{{ concert.venue_name }}</td>
+                <td>{{ concert.city }}</td>
+                <td>{{ concert.ticket_price }} руб.</td>
+                <td>{% if concert.remaining_tickets > 5 %}
+                            ✅ {{ concert.remaining_tickets }}
+                        {% elif concert.remaining_tickets > 0 %}
+                            ⚠️ {{ concert.remaining_tickets }}
+                        {% else %}
+                            ❌ Нет билетов
+                        {% endif %}
+                    </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% elif request.method == 'POST' %}
+<p class="no-results">Концертов по вашему запросу не найдено.</p>
+{% endif %}
+{% endblock %}

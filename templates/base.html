@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VseConcerty.ru</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1> VseConcerty.ru </h1>
+        <nav>
+            <a href="/">Поиск концертов</a>
+            <a href="/artists">Артисты</a>
+            <a href="/tours">Туры</a>
+            <a href="/venues">Площадки</a>
+            <a href="/concerts">Концерты</a>
+            <a href="/tickets">Билеты</a>
+        </nav>
+    </header>
+    
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer>
+        <p> Ниже ничего нет</p>
+    </footer>
+    <div class="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+</body>
+</html>

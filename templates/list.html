@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="header">
+    <h2>{{ title }}</h2>
+    <a href="{{ url_for('create_' + entity_name.rstrip('s')) }}" class="btn">+ Добавить</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            {% for column in columns %}
+                {% if not (entity_name == 'concerts' and column == 'remaining_tickets') %}
+                    <th>{{ column }}</th>
+                {% endif %}
+            {% endfor %}
+            <th>Действия</th>
+            {% if entity_name == 'concerts' %}
+                <th>Осталось билетов</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+    {% for row in rows %}
+    <tr>
+        {% for i in range(columns | length) %}
+            {% set column = columns[i] %}
+            {% if not (entity_name == 'concerts' and column == 'remaining_tickets') %}
+            <td>
+                {% set value = row[i] %}
+                {% if i == 0 %}
+                    {{ value }}
+                {% elif value is none %}
+                -
+                {% elif column == 'photo' and value %}
+                    <img src="data:image/jpeg;base64,{{ value | b64encode }}" alt="Фото" class="thumbnail" style="height: 50px;">
+                {% elif column == 'is_sold' %}
+                    {% if value %}
+                        <span class="badge bg-success">✅ Продано</span>
+                    {% else %}
+                        <span class="badge bg-secondary">❌ Не продано</span>
+                    {% endif %}
+                {% elif column == 'date' or column.endswith('_date') %}
+                    {{ value.strftime('%d.%m.%Y %H:%M') if value else '' }}
+                {% elif column in ['start_date', 'end_date'] %}
+                    {{ value.strftime('%d.%m.%Y') if value else '' }}
+                {% elif column in ['price', 'ticket_price'] %}
+                    {{ "{:,.2f} руб.".format(value) }}
+                {% else %}
+                {{ value }}
+                {% endif %}
+            </td>
+
+            {% endif %}
+{% endfor %}
+        <td class="actions">
+            <a href="{{ url_for('edit_' + entity_name.rstrip('s'), id=row[0]) }}" class="btn btn-edit">✏️</a>
+            <a href="{{ url_for('delete_' + entity_name.rstrip('s'), id=row[0]) }}" 
+               class="btn btn-delete" 
+               onclick="return confirm('Удалить запись?')">🗑️</a>
+        </td>
+        {% if entity_name == 'concerts' %}
+    <td>
+        {% set remaining = row[columns.index('remaining_tickets')] %}
+        {% if remaining > 5 %}
+            <span class="ticket-available">✅ {{ remaining }}</span>
+        {% elif remaining > 0 %}
+            <span class="ticket-warning">⚠️ {{ remaining }}</span>
+        {% else %}
+            <span class="ticket-soldout">❌ Нет билетов</span>
+        {% endif %}
+    </td>
+{% endif %}
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+{% endblock %}
